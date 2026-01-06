@@ -37,6 +37,8 @@ const translations = {
     'about.stat.projects': 'Projects Built',
     'about.stat.technologies': 'Technologies',
     'about.stat.courses': 'Courses Completed',
+    'about.gallery': 'Photo Gallery',
+    'about.addPhoto': 'Add Your Photo',
     
     // Skills
     'skills.title': 'Skills & Technologies',
@@ -123,6 +125,8 @@ const translations = {
     'about.stat.projects': 'Yaratilgan loyihalar',
     'about.stat.technologies': 'Texnologiyalar',
     'about.stat.courses': 'Tugatilgan kurslar',
+    'about.gallery': 'Fotogalereya',
+    'about.addPhoto': "Rasmingizni qo'shing",
     
     // Skills
     'skills.title': "Ko'nikmalar va Texnologiyalar",

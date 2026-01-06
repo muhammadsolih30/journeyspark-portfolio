@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Calendar, Code, Layers, Award } from 'lucide-react';
+import { Calendar, Code, Layers, Award, ImagePlus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+// Rasmlaringizni shu yerga import qiling:
+// import photo1 from '@/assets/photo1.jpg';
+// import photo2 from '@/assets/photo2.jpg';
+// import photo3 from '@/assets/photo3.jpg';
 
 const AboutSection = () => {
   const { t } = useLanguage();
@@ -9,6 +14,10 @@ const AboutSection = () => {
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  // O'zingizning rasmlaringizni shu arrayga qo'shing:
+  // const myPhotos = [photo1, photo2, photo3];
+  const myPhotos: string[] = []; // Bo'sh array - rasmlar qo'shilganda to'ldiriladi
 
   const stats = [
     { icon: Calendar, value: '10+', label: t('about.stat.months') },
@@ -60,8 +69,16 @@ const AboutSection = () => {
                 </div>
                 
                 {/* Avatar placeholder */}
-                <div className="absolute inset-2 rounded-3xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  <span className="text-8xl font-display font-bold gradient-text">MS</span>
+                <div className="absolute inset-2 rounded-3xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center overflow-hidden">
+                  {myPhotos.length > 0 ? (
+                    <img 
+                      src={myPhotos[0]} 
+                      alt="Mukhammadsolikh Shukurov" 
+                      className="w-full h-full object-cover rounded-3xl"
+                    />
+                  ) : (
+                    <span className="text-8xl font-display font-bold gradient-text">MS</span>
+                  )}
                 </div>
 
                 {/* Floating badges */}
@@ -96,6 +113,46 @@ const AboutSection = () => {
               </p>
             </motion.div>
           </div>
+
+          {/* Photo Gallery - O'zingizning rasmlaringiz uchun */}
+          <motion.div variants={itemVariants} className="mt-16">
+            <h3 className="text-2xl font-display font-bold text-center mb-8">
+              <span className="gradient-text">{t('about.gallery') || 'Photo Gallery'}</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[0, 1, 2].map((index) => (
+                <motion.div
+                  key={index}
+                  className="relative aspect-[4/5] rounded-2xl overflow-hidden group"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {myPhotos[index] ? (
+                    <img
+                      src={myPhotos[index]}
+                      alt={`Photo ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full glass-card flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-dashed border-primary/30">
+                      <ImagePlus className="w-12 h-12 text-primary/50 mb-3" />
+                      <span className="text-sm text-muted-foreground text-center px-4">
+                        {t('about.addPhoto') || `Photo ${index + 1}`}
+                      </span>
+                      <span className="text-xs text-muted-foreground/60 mt-1">
+                        src/assets/
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Hover overlay */}
+                  {myPhotos[index] && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
           {/* Stats */}
           <motion.div
