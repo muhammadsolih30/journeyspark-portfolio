@@ -4,9 +4,9 @@ import { Calendar, Code, Layers, Award, ImagePlus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Rasmlaringizni shu yerga import qiling:
-// import photo1 from '@/assets/photo1.jpg';
-// import photo2 from '@/assets/photo2.jpg';
-// import photo3 from '@/assets/photo3.jpg';
+import photo1 from "../../public/photo1.png";
+import photo2 from "../../public/photo2.png";
+import photo3 from "../../public/photo3.png";
 
 const AboutSection = () => {
   const { t } = useLanguage();
@@ -16,8 +16,8 @@ const AboutSection = () => {
   });
 
   // O'zingizning rasmlaringizni shu arrayga qo'shing:
-  // const myPhotos = [photo1, photo2, photo3];
-  const myPhotos: string[] = []; // Bo'sh array - rasmlar qo'shilganda to'ldiriladi
+  const myPhotos = [photo1, photo2, photo3];
+  // const myPhotos: string[] = []; // Bo'sh array - rasmlar qo'shilganda to'ldiriladi
 
   const stats = [
     { icon: Calendar, value: '10+', label: t('about.stat.months') },
@@ -73,7 +73,7 @@ const AboutSection = () => {
                   {myPhotos.length > 0 ? (
                     <img 
                       src={myPhotos[0]} 
-                      alt="Mukhammadsolikh Shukurov" 
+                      alt="Mukhammadsolikh Abduvosiyev" 
                       className="w-full h-full object-cover rounded-3xl"
                     />
                   ) : (
