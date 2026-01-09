@@ -130,7 +130,7 @@ const translations = {
     "about.title": "Men haqimda",
     "about.subtitle": "Sportchidan dasturchiga bo'lgan yo'lim",
     "about.bio1":
-      "Men Mukhammadsolikh Shukurov, O'zbekistonning go'zal Samarqand viloyati Urgut tumanidan 17 yoshli junior frontend dasturchiman. Dasturlash yo'lim 2025 yil boshida boshlandi va o'shandan beri ajoyib veb-tajribalar yaratishga ishtiyoqmandman.",
+      "Men Mukhammadsolikh Abduvosiyev, O'zbekistonning go'zal Samarqand viloyati Urgut tumanidan 17 yoshli junior frontend dasturchiman. Dasturlash yo'lim 2025 yil boshida boshlandi va o'shandan beri ajoyib veb-tajribalar yaratishga ishtiyoqmandman.",
     "about.bio2":
       "Kod olamiga kirishdan oldin men sportchi edim - viloyat kurash chempioni va tuman darajasidagi shaxmat musobaqachisi. Bu tajribalar menga intizom, strategik fikrlash va doimiy takomillashish muhimligini o'rgatdi.",
     "about.bio3":
