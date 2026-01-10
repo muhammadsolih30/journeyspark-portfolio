@@ -46,7 +46,7 @@ const ContactSection = () => {
       }
 
       // API ga ma'lumot yuborish
-      const response = await fetch("http://localhost:4000/api", {
+      const response = await fetch("https://telegram-bot.onrender.com/api", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,6 +55,7 @@ const ContactSection = () => {
       });
 
       const data = await response.json();
+      // const data = await response.text();
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to send message");
