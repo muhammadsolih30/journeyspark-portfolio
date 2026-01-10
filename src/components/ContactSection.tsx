@@ -45,8 +45,14 @@ const ContactSection = () => {
         return;
       }
 
-      // API ga ma'lumot yuborish
-      const response = await fetch("http://localhost:4000/api", {
+      // Backend API URL - localhost:4000
+      const API_URL = "http://localhost:4000";
+
+      console.log("🔵 Xabar yuborilmoqda:", { name, email, message });
+      console.log("🔵 API URL:", API_URL);
+
+      // Backend API'ga so'rov yuborish
+      const response = await fetch(`${API_URL}/api`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,13 +60,24 @@ const ContactSection = () => {
         body: JSON.stringify({ name, email, message }),
       });
 
-      const data = await response.json();
+      console.log("🔵 Response status:", response.status);
+
+      // Response'ni JSON'ga o'girish
+      let data;
+      try {
+        data = await response.json();
+        console.log("🔵 Server response:", data);
+      } catch (jsonError) {
+        console.error("❌ JSON parse error:", jsonError);
+        throw new Error("Server noto'g'ri javob berdi");
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to send message");
+        throw new Error(data.error || "Xabar yuborishda xatolik yuz berdi");
       }
 
       // Muvaffaqiyatli yuborildi
+      console.log("✅ Xabar muvaffaqiyatli yuborildi!");
       toast({
         title: "Xabar yuborildi! ✨",
         description:
@@ -71,17 +88,24 @@ const ContactSection = () => {
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       // Xatolik yuz bersa
-      console.error("Error sending message:", error);
+      console.error("❌ Error sending message:", error);
 
       let errorMessage =
         "Xabar yuborishda muammo bo'ldi. Iltimos, qaytadan urinib ko'ring.";
 
       if (error instanceof Error) {
-        if (error.message.includes("fetch")) {
+        if (
+          error.message.includes("fetch") ||
+          error.message.includes("Failed to fetch")
+        ) {
           errorMessage =
-            "Server bilan bog'lanishda xatolik. Serveringiz ishga tushganini tekshiring.";
+            "Server bilan bog'lanishda xatolik. Backend localhost:4000 da ishlab turganini tekshiring.";
         } else if (error.message.includes("Network")) {
           errorMessage = "Internet aloqangizni tekshiring.";
+        } else if (error.message.includes("CORS")) {
+          errorMessage = "CORS xatosi. Backend CORS sozlamalarini tekshiring.";
+        } else {
+          errorMessage = error.message;
         }
       }
 
