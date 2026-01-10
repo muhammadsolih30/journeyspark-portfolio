@@ -1,182 +1,358 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { Calendar, Code, Layers, Award, ImagePlus } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import {
+  Send,
+  MapPin,
+  MessageCircle,
+  Linkedin,
+  Radio,
+  Mail,
+} from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 
-// Rasmlaringizni shu yerga import qiling:
-import photo1 from "../../public/photo1.png";
-import photo2 from "../../public/photo2.png";
-import photo3 from "../../public/photo3.png";
-
-const AboutSection = () => {
+const ContactSection = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // O'zingizning rasmlaringizni shu arrayga qo'shing:
-  const myPhotos = [photo1, photo2, photo3];
-  // const myPhotos: string[] = []; // Bo'sh array - rasmlar qo'shilganda to'ldiriladi
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const stats = [
-    { icon: Calendar, value: '10+', label: t('about.stat.months') },
-    { icon: Code, value: '10+', label: t('about.stat.projects') },
-    { icon: Layers, value: '12+', label: t('about.stat.technologies') },
-    { icon: Award, value: '2', label: t('about.stat.courses') },
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { name, email, message } = formData;
+
+      // Validatsiya
+      if (!name.trim() || !email.trim() || !message.trim()) {
+        toast({
+          title: "Xatolik",
+          description: "Iltimos, barcha maydonlarni to'ldiring",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // API URL - production yoki development
+      const API_URL =
+        import.meta.env.VITE_API_URL ||
+        "https://telegram-bot-weld-kappa.vercel.app";
+
+      // API ga ma'lumot yuborish
+      const response = await fetch(`${API_URL}/api`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Muvaffaqiyatli yuborildi
+      toast({
+        title: "Xabar yuborildi! ✨",
+        description:
+          "Aloqaga chiqqaningiz uchun rahmat. Tez orada javob beraman!",
+      });
+
+      // Formani tozalash
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      // Xatolik yuz bersa
+      console.error("Error sending message:", error);
+
+      let errorMessage =
+        "Xabar yuborishda muammo bo'ldi. Iltimos, qaytadan urinib ko'ring.";
+
+      if (error instanceof Error) {
+        if (
+          error.message.includes("fetch") ||
+          error.message.includes("Failed to fetch")
+        ) {
+          errorMessage =
+            "Server bilan bog'lanishda xatolik. Iltimos, qaytadan urinib ko'ring.";
+        } else if (error.message.includes("Network")) {
+          errorMessage = "Internet aloqangizni tekshiring.";
+        }
+      }
+
+      toast({
+        title: "Xatolik yuz berdi",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const socialLinks = [
+    {
+      icon: MessageCircle,
+      label: t("contact.telegram"),
+      value: "@MS_rise",
+      href: "https://t.me/MS_rise",
+      color: "hover:text-[#0088cc]",
+      disabled: false,
+    },
+    {
+      icon: Linkedin,
+      label: t("contact.linkedin"),
+      value: t("contact.comingSoon"),
+      href: "#",
+      color: "hover:text-[#0077b5]",
+      disabled: true,
+    },
+    {
+      icon: Radio,
+      label: t("contact.channel"),
+      value: "t.me/MS_rise_official",
+      href: "https://t.me/MS_rise_official",
+      color: "hover:text-[#0088cc]",
+      disabled: false,
+    },
   ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.15 },
     },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
   return (
-    <section id="about" className="py-20 md:py-32 relative">
+    <section id="contact" className="py-20 md:py-32 relative">
       <div className="container mx-auto px-4">
         <motion.div
           ref={ref}
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="max-w-6xl mx-auto"
         >
           {/* Section Header */}
           <motion.div variants={itemVariants} className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              <span className="gradient-text">{t('about.title')}</span>
+              <span className="gradient-text">{t("contact.title")}</span>
             </h2>
-            <p className="text-muted-foreground text-lg">{t('about.subtitle')}</p>
+            <p className="text-muted-foreground text-lg">
+              {t("contact.subtitle")}
+            </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Image/Avatar Section */}
-            <motion.div variants={itemVariants} className="relative">
-              <div className="relative w-72 h-72 md:w-80 md:h-80 mx-auto">
-                {/* Gradient border */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent p-1 animate-spin-slow">
-                  <div className="w-full h-full rounded-3xl bg-background" />
-                </div>
-                
-                {/* Avatar placeholder */}
-                <div className="absolute inset-2 rounded-3xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center overflow-hidden">
-                  {myPhotos.length > 0 ? (
-                    <img 
-                      src={myPhotos[0]} 
-                      alt="Mukhammadsolikh Abduvosiyev" 
-                      className="w-full h-full object-cover rounded-3xl"
-                    />
-                  ) : (
-                    <span className="text-8xl font-display font-bold gradient-text">MS</span>
-                  )}
+          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Contact Form */}
+            <motion.div variants={itemVariants}>
+              <form onSubmit={handleSubmit} className="glass-card space-y-6">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    {t("contact.name")}
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-muted border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-foreground placeholder:text-muted-foreground"
+                    placeholder="John Doe"
+                    disabled={isSubmitting}
+                    autoComplete="name"
+                  />
                 </div>
 
-                {/* Floating badges */}
-                <motion.div
-                  className="absolute -top-4 -right-4 glass-card px-4 py-2"
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    {t("contact.email")}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-muted border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-foreground placeholder:text-muted-foreground"
+                    placeholder="john@example.com"
+                    disabled={isSubmitting}
+                    autoComplete="email"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    {t("contact.message")}
+                  </label>
+                  <textarea
+                    id="message"
+                    required
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-muted border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none text-foreground placeholder:text-muted-foreground"
+                    placeholder="Your message..."
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground font-medium flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+                  whileHover={
+                    !isSubmitting
+                      ? {
+                          scale: 1.02,
+                          boxShadow: "0 0 30px rgba(99, 102, 241, 0.4)",
+                        }
+                      : {}
+                  }
+                  whileTap={!isSubmitting ? { scale: 0.98 } : {}}
                 >
-                  <span className="text-sm font-medium">17 years old</span>
-                </motion.div>
-                
-                <motion.div
-                  className="absolute -bottom-4 -left-4 glass-card px-4 py-2"
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-                >
-                  <span className="text-sm font-medium">🇺🇿 Uzbekistan</span>
-                </motion.div>
-              </div>
+                  {isSubmitting ? (
+                    <>
+                      <motion.div
+                        className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                      />
+                      {t("contact.sending")}
+                    </>
+                  ) : (
+                    <>
+                      <Send size={20} />
+                      {t("contact.send")}
+                    </>
+                  )}
+                </motion.button>
+              </form>
             </motion.div>
 
-            {/* Bio Section */}
+            {/* Contact Info */}
             <motion.div variants={itemVariants} className="space-y-6">
-              <p className="text-foreground/90 text-lg leading-relaxed">
-                {t('about.bio1')}
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('about.bio2')}
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('about.bio3')}
-              </p>
+              {/* Location Card */}
+              <motion.div
+                className="glass-card flex items-center gap-4"
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)",
+                }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Location</p>
+                  <p className="font-medium text-foreground">
+                    {t("contact.location")}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Social Links */}
+              {socialLinks.map((link, index) => (
+                <motion.a
+                  key={index}
+                  href={link.disabled ? undefined : link.href}
+                  target={link.disabled ? undefined : "_blank"}
+                  rel={link.disabled ? undefined : "noopener noreferrer"}
+                  className={`glass-card flex items-center gap-4 ${
+                    link.disabled ? "opacity-60 cursor-not-allowed" : link.color
+                  } transition-colors`}
+                  whileHover={
+                    !link.disabled
+                      ? {
+                          scale: 1.02,
+                          boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)",
+                        }
+                      : {}
+                  }
+                  onClick={(e) => link.disabled && e.preventDefault()}
+                  aria-disabled={link.disabled}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
+                    <link.icon className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">
+                      {link.label}
+                    </p>
+                    <p className="font-medium text-foreground break-all">
+                      {link.value}
+                    </p>
+                  </div>
+                  {link.disabled && (
+                    <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground whitespace-nowrap">
+                      {t("contact.comingSoon")}
+                    </span>
+                  )}
+                </motion.a>
+              ))}
+
+              {/* Email Card */}
+              <motion.div
+                className="glass-card flex items-center gap-4"
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 0 30px rgba(99, 102, 241, 0.2)",
+                }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium text-foreground break-all">
+                    muhammadsolih08091011@gmail.com
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
-
-          {/* Photo Gallery - O'zingizning rasmlaringiz uchun */}
-          <motion.div variants={itemVariants} className="mt-16">
-            <h3 className="text-2xl font-display font-bold text-center mb-8">
-              <span className="gradient-text">{t('about.gallery') || 'Photo Gallery'}</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[0, 1, 2].map((index) => (
-                <motion.div
-                  key={index}
-                  className="relative aspect-[4/5] rounded-2xl overflow-hidden group"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {myPhotos[index] ? (
-                    <img
-                      src={myPhotos[index]}
-                      alt={`Photo ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full glass-card flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-dashed border-primary/30">
-                      <ImagePlus className="w-12 h-12 text-primary/50 mb-3" />
-                      <span className="text-sm text-muted-foreground text-center px-4">
-                        {t('about.addPhoto') || `Photo ${index + 1}`}
-                      </span>
-                      <span className="text-xs text-muted-foreground/60 mt-1">
-                        src/assets/
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Hover overlay */}
-                  {myPhotos[index] && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            variants={itemVariants}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="glass-card text-center group hover:scale-105 transition-transform duration-300"
-                whileHover={{ boxShadow: '0 0 30px rgba(99, 102, 241, 0.3)' }}
-              >
-                <stat.icon className="w-8 h-8 mx-auto mb-3 text-primary group-hover:text-secondary transition-colors" />
-                <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
         </motion.div>
       </div>
     </section>
   );
 };
 
-export default AboutSection;
+export default ContactSection;
